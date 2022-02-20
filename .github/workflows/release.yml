@@ -9,7 +9,7 @@ on:
         description: 'Version'
         required: true
       dumpfile:
-        description: 'Dump file location in repo'
+        description: 'Dump file'
         required: true
 
 jobs:
@@ -26,7 +26,7 @@ jobs:
           python-version: '3.10.2'
 
       - name: Run Script
-        run: python3 panorama_jsdoc_gen.py dump_samples/${{ github.event.inputs.dumpfile }} __panorama_types.js
+        run: python3 panorama_jsdoc_gen.py dumps/${{ github.event.inputs.dumpfile }} __panorama_types.js
     
       - uses: actions/upload-artifact@v2
         with:

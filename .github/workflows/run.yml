@@ -19,9 +19,8 @@ jobs:
         with:
           python-version: '3.10.2'
 
-      # Runs a single command using the runners shell
       - name: Run Script
-        run: python3 panorama_jsdoc_gen.py dump_samples/momentum-feb-20-2022.txt __panorama_types.js
+        run: python3 panorama_jsdoc_gen.py dumps/ci-dump.txt __panorama_types.js
     
       - uses: actions/upload-artifact@v2
         with:
