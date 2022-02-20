@@ -1,0 +1,49 @@
+name: Create Release For Game
+on:
+  workflow_dispatch:
+    inputs:
+      game:
+        description: 'Which game the release is for'
+        required: true
+      version:
+        description: 'Version'
+        required: true
+      dumpfile:
+        description: 'Dump file location in repo'
+        required: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10.2'
+
+      - name: Run Script
+        run: python3 panorama_jsdoc_gen.py dump_samples/${{ github.event.inputs.dumpfile }} __panorama_types.js
+    
+      - uses: actions/upload-artifact@v2
+        with:
+          name: PanoramaTypes
+          path: __panorama_types.js
+      
+      - name: Zip Typefile
+        uses: thedoctor0/zip-release@master
+        with:
+          type: 'zip'
+          path: __panorama_types.js
+          filename: 'panoramatypes.zip'
+          
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.game }}-${{ github.event.inputs.version }}
+          release_name: ${{ github.event.inputs.game }}-${{ github.event.inputs.version }}
+          files: panoramatypes.zip
+          fail_on_unmatched_files: true
