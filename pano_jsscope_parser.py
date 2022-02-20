@@ -18,12 +18,6 @@ class Argument:
         self.variadic:bool = self.type == 'js_raw_arg' # special arg that signifies what could be any amount of args
 
 class FuncSignature:
-    def __init__(self) -> None:
-        self.args:list[Argument] = []
-        self.name:str = ''
-        self.return_type:str = ''
-        self.special_base_type:str = ''
-
     def __init__(self, sig: str) -> None:
         self.parseSig(sig)
         self.special_base_type:str = ''
@@ -44,9 +38,6 @@ class FuncSignature:
         split_string = args_string.split(',')
         for arg_string in split_string:
             self.args.append(Argument(arg_string.strip()))
-
-    def setArgs(self, args: list[str]) -> None:
-        self.args = args
     
     def setSpecialBaseType(self, base_type: str) -> None:
         self.special_base_type = base_type
@@ -78,7 +69,7 @@ class PropertyType(BaseDataType):
 class MethodType(BaseDataType):
     def __init__(self):
         BaseDataType.__init__(self)
-        self.sig:FuncSignature = {}
+        self.sig:FuncSignature = None
 
     def setSig(self, sig: FuncSignature) -> None:
         self.sig = sig
@@ -224,7 +215,7 @@ class JSScopesParser:
 
                 func_exact_regex = '^\$.%s\(.*\)'%method.name
                 if not re.search(func_exact_regex, method.desc):
-                    split_string = method.desc.split('.')
+                    split_string:list[str] = method.desc.split('.')
                     method.sig.setSpecialBaseType(split_string[1])
 
             for property in panel_data.property_data:
@@ -237,7 +228,7 @@ class JSScopesParser:
 
                 prop_exact_regex = '^\$.%s'%property.name
                 if not re.search(prop_exact_regex, property.desc):
-                    split_string = property.desc.split('.')
+                    split_string:list[str] = property.desc.split('.')
                     property.setSpecialBaseType(split_string[1])
 
         return panorama_panel_data
