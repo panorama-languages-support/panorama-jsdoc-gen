@@ -9,7 +9,8 @@ python panorama_jsdoc_gen.py [dump_panorama_js_scopes_output] [outfile]
 ```
 
 The outfile can then be placed inside of your game's `panorama/scripts/` folder.
-VS Code's built-in typescript extension will recognize it (if its file extension is `.js`), giving you autocomplete, hover, and other features for `$` and your game's APIs.
+VS Code's built-in typescript extension will recognize it and pull in the types only if you have it opened and its file extension is `.js`.
+This will give you autocomplete, hover, and other features for `$` and your game's APIs.
 
 Panels can also be given types via JSDoc for the same features: 
 ```javascript
