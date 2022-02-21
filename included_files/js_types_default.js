@@ -2,9 +2,6 @@
  * @typedef {*} unknown
  */
 /**
- * @typedef {Object} Panel
- */
-/**
  * @typedef {*} js_raw_arg
  */
 /**
