@@ -4,8 +4,6 @@ on:
   pull_request:
     branches: [ main ]
 
-  workflow_dispatch:
-
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -19,10 +17,20 @@ jobs:
         with:
           python-version: '3.10.2'
 
-      - name: Run Script
-        run: python3 panorama_jsdoc_gen.py dumps/ci-dump.txt __panorama_types.js
+      - name: Generate Momentum Types
+        run: python3 panorama_jsdoc_gen.py dumps/momentum_latest.txt __types_momentum.js
+        
+      - name: Generate P2CE Types
+        run: python3 panorama_jsdoc_gen.py dumps/p2ce_latest.txt __types_p2ce.js
     
-      - uses: actions/upload-artifact@v2
+      - name: Upload Momentum Artifact
+        uses: actions/upload-artifact@v2
         with:
-          name: PanoramaTypes
-          path: __panorama_types.js
+          name: MomentumTypes
+          path: __types_momentum.js
+
+      - name: Upload P2CE Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: P2CETypes
+          path: __types_p2ce.js
