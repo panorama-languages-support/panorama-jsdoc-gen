@@ -1,0 +1,3 @@
+[submodule "panorama-dumps"]
+	path = panorama-dumps
+	url = https://github.com/panorama-languages-support/panorama-dumps
