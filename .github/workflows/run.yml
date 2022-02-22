@@ -11,6 +11,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Update Submodules
+        run: git submodule update --init --recursive
         
       - name: Setup Python
         uses: actions/setup-python@v2
@@ -18,10 +21,10 @@ jobs:
           python-version: '3.10.2'
 
       - name: Generate Momentum Types
-        run: python3 panorama_jsdoc_gen.py dumps/momentum_latest.txt __types_momentum.js
+        run: python3 panorama_jsdoc_gen.py panorama-dumps/momentum/js_scopes_latest.txt __types_momentum.js
         
       - name: Generate P2CE Types
-        run: python3 panorama_jsdoc_gen.py dumps/p2ce_latest.txt __types_p2ce.js
+        run: python3 panorama_jsdoc_gen.py panorama-dumps/p2ce/js_scopes_latest.txt __types_p2ce.js
     
       - name: Upload Momentum Artifact
         uses: actions/upload-artifact@v2
