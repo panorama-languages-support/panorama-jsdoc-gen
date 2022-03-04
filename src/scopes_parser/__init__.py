@@ -128,3 +128,45 @@ class JSScopesParser:
             pano_component_data.append(PanoramaComponentData(component_data.name, is_api, property_data, method_data))
                 
         return pano_component_data
+
+
+class EventSignature:
+    def __init__(self, sig: str) -> None:
+        self.parseSig(sig)
+
+    def parseSig(self, sig: str) -> None:
+        split_string:list[str] = sig.split('(', 1)
+        self.name:str = split_string[0]
+
+        args_string:str = split_string[1].rstrip(')')
+        self.args:list[Argument] = []
+        if len(args_string) <= 0:
+            return
+
+        split_string = args_string.split(',')
+        for arg_string in split_string:
+            self.args.append(Argument(arg_string.strip()))
+
+class PanoramaEvent:
+    def __init__(self, sig: EventSignature, desc: str) -> None:
+        self.sig = sig
+        self.desc = desc
+
+class JSEventsParser:
+    @staticmethod
+    def parse(lines: list[str]) -> tuple[list[PanoramaEvent], list[PanoramaEvent]]:
+
+        panel_events:list[PanoramaEvent] = []
+        events:list[PanoramaEvent] = []
+
+        components_data:list[ComponentData] = PanoramaDumpLexer.tokenize(lines)
+        assert len(components_data) == 1 and len(components_data[0].data) == 1
+        for scope_data in components_data[0].data[0].data:
+            sig = EventSignature(scope_data[0].lstrip('<code>').rstrip('</code>'))
+            event = PanoramaEvent(sig, scope_data[2])
+            if scope_data[1] == 'Yes':
+                panel_events.append(event)
+            else:
+                events.append(event)
+
+        return panel_events, events

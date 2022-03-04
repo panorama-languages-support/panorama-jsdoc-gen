@@ -1,8 +1,9 @@
 from scopes_parser import *
 
 class JSDocConverterArgs:
-    def __init__(self, in_parse_scopes_filename: str, in_header_filename: str, in_default_filename: str) -> None:
+    def __init__(self, in_parse_scopes_filename: str, in_parse_events_filename: str, in_header_filename: str, in_default_filename: str) -> None:
         self.in_parse_scopes_filename = in_parse_scopes_filename
+        self.in_parse_events_filename = in_parse_events_filename
         self.in_header_filename = in_header_filename
         self.in_default_filename = in_default_filename
 
@@ -14,6 +15,15 @@ class JSDocConverter:
         with open(args.in_parse_scopes_filename, 'r') as f:
             lines = f.readlines()
             pano_component_data = JSScopesParser.parse(lines, True)
+            
+        events_data:list[PanoramaEvent] = []
+        with open(args.in_parse_events_filename, 'r') as f:
+            lines = f.readlines()
+            # panel events not currently usable
+            _, events_data = JSEventsParser.parse(lines)
+
+        # panel_event_param_types:str = '|'.join('{0}'.format(event_data.sig.name) for event_data in panel_events_data)
+        event_param_types:str = '|'.join('\'{0}\''.format(event_data.sig.name) for event_data in events_data)
    
         # Read header comments first
         header_comments:list[str] = []
@@ -56,6 +66,7 @@ class JSDocConverter:
 
                 # make the API functions
                 for method in component_data.method_data:
+                    is_event_method:bool = method.sig.name in ['RegisterEventHandler', 'RegisterForUnhandledEvent']
                     has_special_type:bool = method.sig.special_base_type != ''
                     if has_special_type:
                         special_base_types.append(method.sig.special_base_type)
@@ -72,10 +83,16 @@ class JSDocConverter:
                     if method.sig.return_type != 'void':
                         prop_method_api_data.append(' * @returns {%s}\n'%method.sig.return_type)
 
-                    for idx, arg_type in enumerate(method.sig.args):
-                        prop_method_api_data.append(' * @param {%s} %s\n'%(arg_type.type, arg_type.name))
-                        dummy_var_arg_name:str = arg_type.name if len(arg_type.name) > 0 else arg_type.type # Fallback to typename if arg isnt named
-                        if arg_type.variadic and len(method.sig.args) == 1:
+                    # Add all non-panel events to methods that take an event name as an arg
+                    # Assuming all APIs take in non-panel events
+                    if is_event_method:
+                        prop_method_api_data.append(' * @param {(%s)} event_name\n'%event_param_types)
+                        dummy_var.append('event_name, ')
+
+                    for idx, method_arg in enumerate(method.sig.args):
+                        prop_method_api_data.append(' * @param {%s} %s\n'%(method_arg.type, method_arg.name))
+                        dummy_var_arg_name:str = method_arg.name if len(method_arg.name) > 0 else method_arg.type # Fallback to typename if arg isnt named
+                        if method_arg.variadic and len(method.sig.args) == 1:
                             dummy_var.append('...')
                         dummy_var.append('%s'%dummy_var_arg_name if idx == len(method.sig.args) - 1 else '%s, '%dummy_var_arg_name)
 
@@ -107,11 +124,11 @@ class JSDocConverter:
                     gen_types_jsdoc.append('/**\n')
                     if method.sig.return_type != 'void':
                         gen_types_jsdoc.append(' * @returns {%s}\n'%method.sig.return_type)
-                        
-                    for idx, arg_type in enumerate(method.sig.args):
-                        gen_types_jsdoc.append(' * @param {%s} %s\n'%(arg_type.type, arg_type.name))
-                        dummy_var_arg_name:str = arg_type.name if len(arg_type.name) > 0 else arg_type.type # Fallback to typename if arg isnt named
-                        if arg_type.variadic and len(method.sig.args) == 1:
+
+                    for idx, method_arg in enumerate(method.sig.args):
+                        gen_types_jsdoc.append(' * @param {%s} %s\n'%(method_arg.type, method_arg.name))
+                        dummy_var_arg_name:str = method_arg.name if len(method_arg.name) > 0 else method_arg.type # Fallback to typename if arg isnt named
+                        if method_arg.variadic and len(method.sig.args) == 1:
                             dummy_var.append('...')
                         dummy_var.append('%s'%dummy_var_arg_name if idx == len(method.sig.args) - 1 else '%s, '%dummy_var_arg_name)
 
