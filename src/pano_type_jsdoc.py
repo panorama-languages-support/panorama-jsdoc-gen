@@ -1,15 +1,19 @@
 from scopes_parser import *
 
 class JSDocConverterArgs:
-    def __init__(self, in_header_filename: str, in_default_filename: str) -> None:
+    def __init__(self, in_parse_scopes_filename: str, in_header_filename: str, in_default_filename: str) -> None:
+        self.in_parse_scopes_filename = in_parse_scopes_filename
         self.in_header_filename = in_header_filename
         self.in_default_filename = in_default_filename
 
 class JSDocConverter:
     @staticmethod
-    def parseAndConvertToJSDoc(parser_args: JSScopesParserArguments, args: JSDocConverterArgs) -> list[str]:
-        # Run the parser
-        panorama_panel_data:list[PanoramaPanelData] = JSScopesParser.parse(parser_args)
+    def parseAndConvertToJSDoc(args: JSDocConverterArgs) -> list[str]:
+        # Run the scopes parser
+        pano_component_data:list[PanoramaComponentData] = []
+        with open(args.in_parse_scopes_filename, 'r') as f:
+            lines = f.readlines()
+            pano_component_data = JSScopesParser.parse(lines, True)
    
         # Read header comments first
         header_comments:list[str] = []
@@ -26,21 +30,21 @@ class JSDocConverter:
 
         api_jsdoc:list[str] = []
         gen_types_jsdoc:list[str] = []
-        for panel_data in panorama_panel_data:
+        for component_data in pano_component_data:
 
             # APIs are static globals which we represent here as namespaces
-            if panel_data.is_api:
-                is_special:bool = panel_data.name == '$'
+            if component_data.is_api:
+                is_special:bool = component_data.name == '$'
 
                 # make the namespace for the API
-                api_jsdoc.append('/** @namespace */\nlet %s = {}\n'%panel_data.name)
+                api_jsdoc.append('/** @namespace */\nlet %s = {}\n'%component_data.name)
 
                 prop_method_api_data:list[str] = []
                 special_base_types:list[str] = []
                 
                 # $ can have fields so add them
                 if is_special:
-                    for property in panel_data.property_data:
+                    for property in component_data.property_data:
                         has_special_type:bool = property.special_base_type != ''
                         if has_special_type:
                             special_base_types.append(property.special_base_type)
@@ -51,7 +55,7 @@ class JSDocConverter:
 
 
                 # make the API functions
-                for method in panel_data.method_data:
+                for method in component_data.method_data:
                     has_special_type:bool = method.sig.special_base_type != ''
                     if has_special_type:
                         special_base_types.append(method.sig.special_base_type)
@@ -80,24 +84,24 @@ class JSDocConverter:
                     prop_method_api_data += dummy_var
 
                     # Add dummy function to dummy namespace
-                    append_type:str = '%s.%s'%(panel_data.name, method.name) if not has_special_type else '%s.%s.%s'%(panel_data.name, method.sig.special_base_type, method.name)
+                    append_type:str = '%s.%s'%(component_data.name, method.name) if not has_special_type else '%s.%s.%s'%(component_data.name, method.sig.special_base_type, method.name)
                     prop_method_api_data.append('%s = %s;\n}\n'%(append_type, method.name))
 
                 # Add any special types as subnamespaces
                 special_base_types_unique:set[str] = set(special_base_types)
                 for special_base_type in special_base_types_unique:
-                    api_jsdoc.append('/** @namespace */\n%s.%s = {}\n'%(panel_data.name, special_base_type))
+                    api_jsdoc.append('/** @namespace */\n%s.%s = {}\n'%(component_data.name, special_base_type))
 
                 api_jsdoc += prop_method_api_data
 
             else:
-                gen_types_jsdoc.append('/** @class */\nfunction %s() {\n'%panel_data.name)
+                gen_types_jsdoc.append('/** @class */\nfunction %s() {\n'%component_data.name)
 
-                for property in panel_data.property_data:
+                for property in component_data.property_data:
                     read_only:bool = '@readonly' if property.readonly else ''
                     gen_types_jsdoc.append('/** @type {%s} %s */\nthis.%s;\n'%(property.type, read_only, property.name))
 
-                for method in panel_data.method_data:
+                for method in component_data.method_data:
                     dummy_var:list[str] = [ 'this.%s = function('%method.sig.name ]
 
                     gen_types_jsdoc.append('/**\n')
