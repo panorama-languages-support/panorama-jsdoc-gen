@@ -1,7 +1,7 @@
 import sys
-from pano_jsscope_parser import JSScopesParserArguments
+from scopes_parser import JSScopesParserArguments
 from pano_type_jsdoc import JSDocConverterArgs, JSDocConverter
-from resource_get import resource_path
+from util import resource_path
 
 try:
     parser_in_filename:str = sys.argv[1]
