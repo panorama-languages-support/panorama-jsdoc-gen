@@ -21,10 +21,10 @@ jobs:
           python-version: '3.10.2'
 
       - name: Generate Momentum Types
-        run: python3 panorama_jsdoc_gen.py panorama-dumps/momentum/js_scopes_latest.txt __types_momentum.js
+        run: python3 src/panorama_jsdoc_gen.py panorama-dumps/momentum/js_scopes_latest.txt panorama-dumps/momentum/events_latest.txt __types_momentum.js
         
       - name: Generate P2CE Types
-        run: python3 panorama_jsdoc_gen.py panorama-dumps/p2ce/js_scopes_latest.txt __types_p2ce.js
+        run: python3 src/panorama_jsdoc_gen.py panorama-dumps/p2ce/js_scopes_latest.txt panorama-dumps/p2ce/events_latest.txt __types_p2ce.js
     
       - name: Upload Momentum Artifact
         uses: actions/upload-artifact@v2
