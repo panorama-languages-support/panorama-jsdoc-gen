@@ -7,15 +7,20 @@ try:
 except Exception:
     in_parse_scopes_filename:str = input('JS Scopes dump filename (output of dump_panorama_js_scopes): ')
 
-converter_in_header_filename:str = resource_path('included_files/header_info.js')
-converter_in_default_filename:str = resource_path('included_files/js_types_default.js')
+try:
+    in_parse_events_filename:str = sys.argv[2]
+except Exception:
+    in_parse_events_filename:str = input('JS Events dump filename (output of dump_panorama_events): ')
 
-jsdoc_converter_args = JSDocConverterArgs(in_parse_scopes_filename=in_parse_scopes_filename, in_header_filename=converter_in_header_filename, in_default_filename=converter_in_default_filename)
+in_header_filename:str = resource_path('included_files/header_info.js')
+in_default_filename:str = resource_path('included_files/js_types_default.js')
+
+jsdoc_converter_args = JSDocConverterArgs(in_parse_scopes_filename, in_parse_events_filename, in_header_filename, in_default_filename)
 
 panorama_jsdoc:list[str] = JSDocConverter.parseAndConvertToJSDoc(args=jsdoc_converter_args)
 
 try:
-    out_filename:str = sys.argv[2]
+    out_filename:str = sys.argv[3]
 except Exception:
     out_filename:str = input('JSDoc output file: ')
     
