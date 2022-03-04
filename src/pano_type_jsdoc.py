@@ -1,4 +1,4 @@
-from pano_jsscope_parser import *
+from scopes_parser import *
 
 class JSDocConverterArgs:
     def __init__(self, in_header_filename: str, in_default_filename: str) -> None:
