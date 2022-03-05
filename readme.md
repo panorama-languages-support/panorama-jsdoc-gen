@@ -20,6 +20,11 @@ progressBarPanel = $('#ProgressBarPanelID')
 
 If VS Code or your text editor of choice fails to automatically import typing information, you can get them while developing via `require`, though the script will error with that in-game.
 
+## Supported Games
+
+Currently only Momentum Mod and P2:CE types files are generated, but the converter should work for CS:GO and Dota 2.
+Feel free to open an issue or pull request if you would like to see those games added here!
+
 ## Notes
 
 Unfortunately we are unable to define Panorama's types via purely virtual JSDoc comments, so the output typings file contains dummy namespaces, classes, fields, and methods to fake typing information.
