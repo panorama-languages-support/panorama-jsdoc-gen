@@ -5,7 +5,7 @@ Simple python script that parses the output of the commands `dump_panorama_js_sc
 ## Usage
 
 ```bash
-python3 panorama_jsdoc_gen.py [js_scopes_outputfile] [js_events_outputfile] [outfile]
+python3 src/panorama_jsdoc_gen.py [js_scopes_outputfile] [js_events_outputfile] [outfile]
 ```
 
 The outfile can then be placed inside of your game's `panorama/scripts/` folder.
